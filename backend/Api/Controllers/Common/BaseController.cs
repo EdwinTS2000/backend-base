@@ -1,10 +1,14 @@
+using App.Designs.Common.Delete;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.Common
 {
+    [ApiController]
     [Route("api/v1/[controller]")]
-    public class BaseController/* <TDeleteCommand> */ : ControllerBase
-    // where TDeleteCommand : DeleteCommandBase
+    public abstract class BaseController<TDeleteCommand> :
+        ControllerBase
+        where TDeleteCommand : DeleteCommandBase
     {
         private readonly IMediator _mediator;
 
@@ -13,12 +17,18 @@ namespace Api.Controllers.Common
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
-        [HttpDelete("{id:guid}", Name = "Eliminar entidad")]
+        [HttpDelete(Name = "Eliminar Cualquier entidad")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<Unit>> Delete(Guid id)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Unit>> Delete(
+            TDeleteCommand command,
+            CancellationToken cancellationToken
+        )
         {
-            // TDeleteCommand query = new() { Id = id };
-            await _mediator.Send(query);
+            Console.WriteLine("edwin");
+            Console.WriteLine(command.Id);
+            await _mediator.Send(command, cancellationToken);
             return NoContent();
         }
     }
