@@ -1,12 +1,12 @@
 namespace App.Exceptions
 {
-    public sealed class AppValidationException : Exception
+    public sealed class AppValidationException : AppException
     {
         public IReadOnlyDictionary<string, string[]> ErrorsDictionary { get; }
 
         public AppValidationException(
             IReadOnlyDictionary<string, string[]> errorsDictionary)
-            : base("Ocurrieron errores de validación.")
+            : base("Validation Error", "Uno o más errores de validación ocurrieron.")
         {
             ErrorsDictionary = errorsDictionary;
         }
