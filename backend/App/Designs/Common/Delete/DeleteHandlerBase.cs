@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using App.Exceptions;
+using App.Extensions;
 using App.Interfaces.Common;
 using Core.Models.Common;
 using MediatR;
@@ -20,7 +21,16 @@ namespace App.Designs.Common.Delete
 
         public async Task<Unit> Handle(TCommand request, CancellationToken cancellationToken)
         {
-            var entity = await GetEntity(request.Id, cancellationToken);
+            Expression<Func<TEntity, bool>> filters = x =>
+                x.Id.Equals(request.Id)
+                && (request.Remove || x.DateDelete == null);
+
+            var extraFilters = BuildFilters(request);
+            if (extraFilters != null)
+                filters = filters.And(extraFilters);
+
+            var entity = await GetEntity(filters, cancellationToken);
+
             if (entity == null)
                 throw new NotFoundException(typeof(TEntity).Name, request.Id);
 
@@ -33,12 +43,12 @@ namespace App.Designs.Common.Delete
             return Unit.Value;
         }
 
-        protected virtual async Task<TEntity?> GetEntity(Guid id, CancellationToken cancellationToken)
+        protected virtual async Task<TEntity?> GetEntity(
+            Expression<Func<TEntity, bool>> filters,
+            CancellationToken cancellationToken
+        )
         {
-            Expression<Func<TEntity, bool>> filter =
-                x => x.DateDelete == null && x.Id == id;
-
-            return await _repository.GetFirstAsync(filter, null, true, cancellationToken);
+            return await _repository.GetFirstAsync(filters, null, false, cancellationToken);
         }
 
         protected async virtual Task ApplyDelete(TCommand request, TEntity entity, CancellationToken cancellationToken)
@@ -50,6 +60,9 @@ namespace App.Designs.Common.Delete
             }
             await _repository.RemoveAsync(entity, cancellationToken);
         }
+
+        protected virtual Expression<Func<TEntity, bool>>? BuildFilters(TCommand request)
+            => null;
 
         protected virtual Task BeforeDeleteAsync(
             TEntity entity, CancellationToken cancellationToken)

@@ -50,7 +50,7 @@ namespace Infra.Repositories.Common
     )
     {
       ArgumentNullException.ThrowIfNull(entity);
-      await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
+      _context.Entry(entity).State = EntityState.Added;
       await _context.SaveChangesAsync(cancellationToken);
       return entity;
     }
@@ -70,7 +70,7 @@ namespace Infra.Repositories.Common
     )
     {
       ArgumentNullException.ThrowIfNull(entity);
-      _context.Set<TEntity>().Update(entity);
+      _context.Entry(entity).State = EntityState.Modified;
       await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -89,7 +89,7 @@ namespace Infra.Repositories.Common
     )
     {
       ArgumentNullException.ThrowIfNull(entity);
-      _context.Set<TEntity>().Remove(entity);
+      _context.Entry(entity).State = EntityState.Deleted;
       await _context.SaveChangesAsync(cancellationToken);
     }
 

@@ -1,0 +1,11 @@
+using App.Designs.Common;
+
+namespace App.Designs.UserDesign
+{
+    public class UserDTO : IResponseWithId
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

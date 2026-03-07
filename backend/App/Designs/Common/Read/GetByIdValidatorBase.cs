@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace App.Designs.Common.Read
 {
-    public class GetFirstValidatorBase<TQuery, TDto>
+    public class GetByIdValidatorBase<TQuery, TDto>
         : AbstractValidator<TQuery>
-        where TQuery : GetFirstQueryBase<TDto>
+        where TQuery : GetByIdQueryBase<TDto>
     {
-        public GetFirstValidatorBase()
+        public GetByIdValidatorBase()
         {
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("El identificador es obligatorio.");
